@@ -1,0 +1,198 @@
+- name: Create system user for the Django project
+  user: name={{django_user}} comment="{{pycont_name}} system user" system=yes
+
+- name: Install Debian packages for Django
+  apt: pkg={{item}} state=present update-cache=yes cache_valid_time=86400
+  with_items:
+  - git-core
+  - unzip
+  - python-dev
+  - python-virtualenv
+  - libpq-dev
+  - gettext
+  - python-psycopg2
+  # Mostly used for Ansible, but also generally useful
+  - acl
+  tags: apt
+
+- name: Install Python 3 Debian packages for Django
+  apt: pkg={{item}} state=present update-cache=yes cache_valid_time=86400
+  with_items:
+  - python3
+  - libpython3-dev
+  when: django_python3
+
+- name: Install application specific .deb dependencies
+  apt: pkg={{item}} state=present update-cache=yes cache_valid_time=86400
+  with_items: "{{django_deb_deps|default([])}}"
+
+- name: Install Pillow dependencies
+  apt: pkg={{item}} state=present update-cache=yes cache_valid_time=86400
+  with_items:
+#    - libtiff4-dev
+    - libtiff5-dev
+    - libjpeg8-dev
+    - zlib1g-dev
+    - libfreetype6-dev
+    - liblcms2-dev
+    - libwebp-dev
+    - tcl8.5-dev
+    - tk8.5-dev
+    - python-tk
+  when: django_pillow is defined and django_pillow
+
+- name: Install lxml dependencies
+  apt: pkg={{item}} state=present update-cache=yes cache_valid_time=86400
+  with_items:
+  - libxml2-dev
+  - libxslt1-dev
+  when: django_lxml is defined and django_lxml
+
+- name: Clone the configured version of the project source
+  become_user: "{{django_user}}"
+  git: repo={{django_git_url}}
+       dest=/home/{{django_user}}/{{django_name}}
+       version={{django_git_version}}
+       force={{django_git_force_pull|default(false)}}
+  tags: [ 'code_update', 'git_operations' ]
+
+- name: Create Python 2.x virtualenv
+  become_user: "{{django_user}}"
+  environment:
+    LC_CTYPE: C.UTF-8
+  pip: requirements=/home/{{django_user}}/{{django_name}}/requirements.txt
+       virtualenv=/home/{{django_user}}/venv
+       virtualenv_site_packages=no
+       state=latest
+  tags: venv
+  when: not django_python3
+
+- name: Create Python 3.x venv
+  become_user: "{{django_user}}"
+  environment:
+    LC_CTYPE: C.UTF-8
+  shell: virtualenv -p /usr/bin/python3 /home/{{django_user}}/venv
+         creates=/home/{{django_user}}/venv
+  tags: venv
+  when: django_python3
+
+- name: Upgrade pip & setuptools in virtualenv
+  become_user: "{{django_user}}"
+  environment:
+    LC_CTYPE: C.UTF-8
+  pip: name={{item}} virtualenv=/home/{{django_user}}/venv state=latest
+  # Maybe with python 2.x as well? Although nothing needs that anymore?
+  when: django_python3
+  with_items:
+    - setuptools
+    - pip
+
+- name: Install requirements.txt into virtualenv
+  become_user: "{{django_user}}"
+  # pip processing does not read the encoding header in Python files, thus
+  # causing a failure if there are non-ASCII characters in setup.py, workaround
+  # this by setting locale (this should be verified as this over year ago)
+  environment:
+    LC_ALL: C.UTF-8
+  pip: requirements=/home/{{django_user}}/{{django_name}}/requirements.txt
+       virtualenv=/home/{{django_user}}/venv
+       virtualenv_site_packages=no
+       state=latest
+  tags: [ venv, code_update ]
+
+- name: Install configuration specific Python packages into virtualenv
+  become_user: "{{django_user}}"
+  # pip processing does not read the encoding header in Python files, thus
+  # causing a failure if there are non-ASCII characters in setup.py, workaround
+  # this by setting locale (this should be verified as this over year ago)
+  environment:
+    LC_ALL: C.UTF-8
+  pip: name={{item}}
+       virtualenv=/home/{{django_user}}/venv
+       virtualenv_site_packages=no
+       state=latest
+  with_items: "{{django_service_pypis|default([])}}"
+  tags: [ venv, code_update ]
+
+- name: Make virtualenv activate by default
+  become_user: "{{django_user}}"
+  lineinfile: dest=/home/{{django_user}}/.bashrc line=". ~/venv/bin/activate"
+
+- name: Copy in Django configuration
+  become_user: "{{django_user}}"
+  template: src=django_local_settings.py.j2
+            dest=/home/{{django_user}}/{{django_name}}/local_settings.py
+  tags: [ django_config, code_update ]
+
+- name: Apply database migrations
+  django_manage: command=migrate app_path=/home/{{django_user}}/{{django_name}}
+                 virtualenv=/home/{{django_user}}/venv
+  become_user: "{{django_user}}"
+  tags: [db,code_update]
+
+- name: Check if translations are present
+  stat: path=/home/{{django_user}}/{{django_name}}/locale
+  register: locale
+  tags: code_update
+
+- name: Compile translations
+  django_manage: command=compilemessages app_path=/home/{{django_user}}/{{django_name}}
+                 virtualenv=/home/{{django_user}}/venv
+  become_user: "{{django_user}}"
+  when: locale.stat.isdir is defined and locale.stat.isdir
+  tags: code_update
+
+- name: Create static file directory
+  become_user: "{{django_user}}"
+  file: path=/home/{{django_user}}/static state=directory
+
+- name: Create media directory
+  become_user: "{{django_user}}"
+  file: path=/home/{{django_user}}/media state=directory
+
+- name: Run application specific setup commands
+  become_user: "{{django_user}}"
+  environment:
+    # LC_ALL is the big hammer to get rid of character set problems
+    LC_ALL: C.UTF-8
+  django_manage: command={{ item }} app_path=/home/{{django_user}}/{{django_name}}
+                  virtualenv=/home/{{django_user}}/venv
+  with_items: "{{django_setup_commands|default([])}}"
+
+- name: Collect static files
+  become_user: "{{django_user}}"
+  django_manage: command=collectstatic app_path=/home/{{django_user}}/{{django_name}}
+                 virtualenv=/home/{{django_user}}/venv
+  tags: code_update
+
+- name: Import initial data
+  include: initial_data.yml
+  tags: initial_data
+
+- name: Set up service specific cron jobs
+  cron: name={{ item.name }} job={{ item.command }} user={{ django_user }} minute={{ item.minute }}
+  with_items: "{{ django_cronjobs | default([])}}"
+  tags: cronjobs
+
+- name: Set up service specific cron environment variables
+  cron: name={{ item.name }} env=yes value={{ item.value }}
+  with_items: "{{ django_cronenvs | default([])}}"
+  tags: cronjobs
+
+- name: Regenerate Haystack index
+  become_user: "{{django_user}}"
+  django_manage: command="rebuild_index --noinput" app_path=/home/{{django_user}}/{{django_name}}
+                  virtualenv=/home/{{django_user}}/venv
+  when: django_full_reinit is defined and django_full_reinit
+
+# State directory (misnomer) contains both state and actions for managing
+# the service (like backup config, scripts and reload touchpoint)
+- name: Ensure service state directory exists
+  file: path=/home/{{django_user}}/service_state state=directory
+  tags: code_update
+
+# Touching the file will not magically do something. Container must be configured
+# to act on this.
+- name: Touch the service reload flag file
+  file: path=/home/{{django_user}}/service_state/touch_to_reload state=touch owner={{django_user}} mode=0700
+  tags: code_update
