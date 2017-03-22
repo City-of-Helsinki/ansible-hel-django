@@ -32,6 +32,7 @@ ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 
 CSRF_COOKIE_NAME = '{{ django_name }}-csrftoken'
+CSRF_COOKIE_PATH = '/{{ django_url_prefix|default("") }}'
 SESSION_COOKIE_NAME = '{{ django_name }}-sessionid'
 SESSION_COOKIE_SECURE = True
 SESSION_COOKIE_PATH = '/{{ django_url_prefix|default("") }}'
@@ -110,13 +111,14 @@ LOGGING = {
 }
 {% endif %}
 
-{% if django_raven_dsn is defined %}
+{% if django_sentry_dsn is defined %}
 import raven
 
 RAVEN_CONFIG = {
-    'dsn': '{{django_raven_dsn}}',
+    'dsn': '{{django_sentry_dsn}}',
     # Needs to change if settings.py is not in an immediate child of the project
     'release': raven.fetch_git_sha(os.path.dirname(os.pardir)),
+{% if django_sentry_environment is defined %}    'environment': '{{django_sentry_environment}}'{% endif %}
 }
 {% endif %}
 

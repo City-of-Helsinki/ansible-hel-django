@@ -89,7 +89,7 @@
   pip: requirements=/home/{{django_user}}/{{django_name}}/requirements.txt
        virtualenv=/home/{{django_user}}/venv
        virtualenv_site_packages=no
-       state=latest
+       state=present
   tags: [ venv, code_update ]
 
 - name: Install configuration specific Python packages into virtualenv
