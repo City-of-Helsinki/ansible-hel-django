@@ -106,6 +106,7 @@
   with_items: "{{django_service_pypis|default([])}}"
   tags: [ venv, code_update ]
 
+# This is a convenience for local debugging
 - name: Make virtualenv activate by default
   become_user: "{{django_user}}"
   lineinfile: dest=/home/{{django_user}}/.bashrc line=". ~/venv/bin/activate"
@@ -124,12 +125,20 @@
     mode: 0755
     owner: "{{ django_user }}"
 
-- name: Copy in service specific configuration fragments
+- name: Copy in configuration fragments
   become_user: "{{django_user}}"
   template: src={{ item }}
             dest=/home/{{django_user}}/{{django_name}}/local_settings.d
   tags: [ django_config, code_update ]
   with_items: "{{ django_config_fragments|default([]) }}"
+
+# Source is hardcoded to django-generic sub, maybe it'll be all that is
+- name: Copy in deployment specific files
+  copy:
+    src: files/django-generic/{{ item.source }}
+    dest: /home/{{django_user}}/{{django_name}}/{{ item.target }}
+    mode: 0644
+  with_items: "{{ django_deployment_files|default([]) }}"
 
 - name: Run pre-migration commands
   become_user: "{{django_user}}"
@@ -217,7 +226,7 @@
 - name: Write deployed version in service state directory
   copy: content="{{ git_deploy.after }}\n" dest=/home/{{ django_user }}/service_state/deployed_version
 
-# Touching the file will not magically do something. Container must be configured
+# Touching the file will not magically do something. Application server (like uwsgi) must be configured
 # to act on this.
 - name: Touch the service reload flag file
   file: path=/home/{{django_user}}/service_state/touch_to_reload state=touch owner={{django_user}} mode=0700
