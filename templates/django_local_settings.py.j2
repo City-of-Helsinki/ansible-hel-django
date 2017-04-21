@@ -1,6 +1,7 @@
 # {{ansible_managed}}
 # Read in a fragment directory. Easier than trying to splice them
 # all over the template
+{% if django_enable_local_settings_d|default(True) %}
 import os
 local_settings_d = os.path.join(BASE_DIR, 'local_settings.d')
 if os.path.isdir(local_settings_d):
@@ -8,6 +9,7 @@ if os.path.isdir(local_settings_d):
         if not file.endswith('.py'):
             continue
         exec(open(os.path.join(local_settings_d, file), "rb").read())
+{% endif %}
 
 ALLOWED_HOSTS = {{ django_virtualhosts }}
 
