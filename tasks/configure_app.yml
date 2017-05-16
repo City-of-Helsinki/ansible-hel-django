@@ -1,8 +1,14 @@
+- name: Read in Node path if available
+  command: cat /home/{{django_user}}/nvm/path_to_current
+  register: node_path
+  ignore_errors: yes
+
 - name: Template in Django configuration
   become_user: "{{django_user}}"
   template: src=django_local_settings.py.j2
             dest=/home/{{django_user}}/{{django_name}}/local_settings.py
             mode=0644
+  when: django_create_local_settings|default(True)
 
 - name: Create django configuration fragment directory
   file:
@@ -10,6 +16,7 @@
     state: directory
     mode: 0755
     owner: "{{ django_user }}"
+  when: django_create_local_settings|default(True)
 
 - name: Copy in configuration fragments
   become_user: "{{django_user}}"
@@ -55,20 +62,18 @@
   django_manage: command=compilemessages app_path=/home/{{django_user}}/{{django_name}}
                  virtualenv=/home/{{django_user}}/venv
   become_user: "{{django_user}}"
-  when: locale.matched > 0
+  # django_locales_present is an override when the test above produces false results
+  when: locale.matched > 0 and django_locales_present|default(True)
   tags: code_update
 
 - name: Create static file directory
   become_user: "{{django_user}}"
   file: path=/home/{{django_user}}/static state=directory
+  ignore_errors: yes
 
 - name: Create media directory
   become_user: "{{django_user}}"
   file: path=/home/{{django_user}}/media state=directory
-
-- name: Read in Node path if available
-  command: cat /home/{{django_user}}/nvm/path_to_current
-  register: node_path
   ignore_errors: yes
 
 - name: Run post-installation commands
@@ -77,7 +82,7 @@
     # LC_ALL is the big hammer to get rid of character set problems
     LC_ALL: C.UTF-8
     # This works just fine even with empty node_path.stdout
-
+    PATH: "{{ node_path.stdout }}:{{ ansible_env.PATH }}"
   django_manage: command={{ item }} app_path=/home/{{django_user}}/{{django_name}}
                   virtualenv=/home/{{django_user}}/venv
   with_items: "{{django_setup_commands|default([])}}"

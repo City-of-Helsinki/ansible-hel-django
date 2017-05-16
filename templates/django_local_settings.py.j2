@@ -126,8 +126,8 @@ RAVEN_CONFIG = {
 
 STATIC_ROOT = '/home/{{django_user}}/static'
 MEDIA_ROOT = '/home/{{django_user}}/media'
-STATIC_URL = '{{ "/" ~ django_url_prefix if django_url_prefix is defined else ""}}/static/'
-MEDIA_URL = '{{ "/" ~ django_url_prefix if django_url_prefix is defined else "" }}/media/'
+STATIC_URL = '{{ ("/" ~ django_url_prefix) if django_url_prefix is defined else ""}}/static/'
+MEDIA_URL = '{{ ("/" ~ django_url_prefix) if django_url_prefix is defined else "" }}/media/'
 
 {% if django_jwt_secret|default(False) %}
 JWT_AUTH = {
