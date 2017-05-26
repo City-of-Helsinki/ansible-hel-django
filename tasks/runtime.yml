@@ -4,7 +4,7 @@
   tags: cronjobs
 
 - name: Set up service specific cron environment variables
-  cron: name={{ item.name }} env=yes value={{ item.value }}
+  cron: name={{ item.name }} user={{ django_user }} env=yes value={{ item.value }}
   with_items: "{{ django_cronenvs | default([])}}"
   tags: cronjobs
 
