@@ -36,7 +36,8 @@ SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 CSRF_COOKIE_NAME = '{{ django_name }}-csrftoken'
 CSRF_COOKIE_PATH = '/{{ django_url_prefix|default("") }}'
 SESSION_COOKIE_NAME = '{{ django_name }}-sessionid'
-SESSION_COOKIE_SECURE = True
+{% FIXME, django role should not really look inside nginx configuration %}
+SESSION_COOKIE_SECURE = {{ 'True' if nginx_certchain is defined else 'False' }}
 SESSION_COOKIE_PATH = '/{{ django_url_prefix|default("") }}'
 
 SITE_TYPE = '{{ django_site_state }}'
