@@ -7,6 +7,7 @@
   tags: [ 'code_update', 'git_operations' ]
   register: git_deploy
   until: git_deploy|succeeded
+  when: not django_skip_git is defined
 
 - name: Create Python 3.x venv
   become_user: "{{django_user}}"
@@ -38,6 +39,21 @@
        virtualenv_site_packages=no
        state={{ django_upgrade_requirements | default(False) | ternary('latest', 'present') }}
   tags: [ venv, code_update ]
+  when: not django_skip_git is defined
+
+- name: Install requirements-dev.txt into virtualenv
+  become_user: "{{django_user}}"
+  # pip processing does not read the encoding header in Python files, thus
+  # causing a failure if there are non-ASCII characters in setup.py, workaround
+  # this by setting locale (this should be verified as this over year ago)
+  environment:
+    LC_ALL: C.UTF-8
+  pip: requirements=/home/{{django_user}}/{{django_name}}/requirements-dev.txt
+       virtualenv=/home/{{django_user}}/venv
+       virtualenv_site_packages=no
+       state={{ django_upgrade_requirements | default(False) | ternary('latest', 'present') }}
+  tags: [ venv, code_update ]
+  when: not django_skip_git is defined and django_install_devreqs | default(False)
 
 - name: Install configuration specific Python packages into virtualenv
   become_user: "{{django_user}}"

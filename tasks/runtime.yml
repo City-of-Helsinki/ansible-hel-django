@@ -17,6 +17,7 @@
 - name: Write deployed version in service state directory
   copy: content="{{ git_deploy.after }}\n" dest=/home/{{ django_user }}/service_state/deployed_version
   tags: code_update
+  when: not django_skip_git is defined
 
 # Touching the file will not magically do something. Application server (like uwsgi) must be configured
 # to act on this.
