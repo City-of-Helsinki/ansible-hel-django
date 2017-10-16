@@ -32,6 +32,7 @@ CORS_ORIGIN_WHITELIST = ['{{ django_cors_whitelist }}']
 LOGIN_REDIRECT_URL = 'https://api.hel.fi{{ "/" ~ django_url_prefix if django_url_prefix is defined else "" }}/admin/'
 ACCOUNT_DEFAULT_HTTP_PROTOCOL = 'https'
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+USE_X_FORWARDED_HOST = {{ django_use_x_forwarded_host|default("True") }}
 
 CSRF_COOKIE_NAME = '{{ django_name }}-csrftoken'
 CSRF_COOKIE_PATH = '/{{ django_url_prefix|default("") }}'

@@ -107,4 +107,4 @@
   become_user: "{{django_user}}"
   django_manage: command="rebuild_index --noinput" app_path=/home/{{django_user}}/{{django_name}}
                   virtualenv=/home/{{django_user}}/venv
-  when: django_full_reinit is defined and django_full_reinit
+  when: django_full_reinit|default(False)
