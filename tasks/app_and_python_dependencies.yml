@@ -9,20 +9,16 @@
   until: git_deploy|succeeded
   when: not django_skip_git is defined
 
-- name: Create Python 3.x venv
+- name: Create virtualenv & upgrade pip & setuptools
   become_user: "{{django_user}}"
   environment:
     LC_CTYPE: C.UTF-8
-  shell: virtualenv -p /usr/bin/python3 /home/{{django_user}}/venv
-         creates=/home/{{django_user}}/venv
-  tags: venv
-
-- name: Upgrade pip & setuptools in virtualenv
-  become_user: "{{django_user}}"
-  environment:
-    LC_CTYPE: C.UTF-8
-  pip: name={{item}} virtualenv=/home/{{django_user}}/venv state=latest
-  # Maybe with python 2.x as well? Although nothing needs that anymore?
+  pip:
+    name: "{{item}}"
+    virtualenv: /home/{{django_user}}/venv
+    virtualenv_command: python -m venv
+    virtualenv_site_packages: false
+    state: latest
   with_items:
     - setuptools
     - pip
@@ -36,7 +32,6 @@
     LC_ALL: C.UTF-8
   pip: requirements=/home/{{django_user}}/{{django_name}}/requirements.txt
        virtualenv=/home/{{django_user}}/venv
-       virtualenv_site_packages=no
        state={{ django_upgrade_requirements | default(False) | ternary('latest', 'present') }}
   tags: [ venv, code_update ]
   when: not django_skip_git is defined
