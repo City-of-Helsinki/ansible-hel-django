@@ -48,6 +48,7 @@
   django_manage: command=migrate app_path=/home/{{django_user}}/{{django_name}}
                  virtualenv=/home/{{django_user}}/venv
   become_user: "{{django_user}}"
+  when: django_run_migrations|default(True)
   tags: [db,code_update]
 
 - name: Check if translations are present
@@ -62,6 +63,9 @@
   django_manage: command=compilemessages app_path=/home/{{django_user}}/{{django_name}}
                  virtualenv=/home/{{django_user}}/venv
   become_user: "{{django_user}}"
+  environment:
+    # Otherwise some projects get mad about missing keys or such
+    DEBUG: "True"
   # django_locales_present is an override when the test above produces false results
   when: locale.matched > 0 and django_locales_present|default(True)
   tags: code_update
@@ -98,6 +102,9 @@
 
 - name: Collect static files
   become_user: "{{django_user}}"
+  environment:
+    # Otherwise some projects get mad about missing keys or such
+    DEBUG: "True"
   django_manage: command=collectstatic app_path=/home/{{django_user}}/{{django_name}}
                  virtualenv=/home/{{django_user}}/venv
   tags: code_update

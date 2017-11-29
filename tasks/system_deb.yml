@@ -3,8 +3,6 @@
   with_items:
   - git-core
   - unzip
-  - python-dev
-  - python-virtualenv
   - libpq-dev
   - gettext
   # Only used by Ansible for creating databases
@@ -16,11 +14,20 @@
   - build-essential
   tags: apt
 
+- name: Install rsync to synchoronize
+  apt: pkg={{item}} state=present update-cache=yes cache_valid_time=86400
+  with_items:
+  - rsync
+  when: django_sync_source is defined
+
 - name: Install Python 3 Debian packages for Django
   apt: pkg={{item}} state=present update-cache=yes cache_valid_time=86400
   with_items:
+  - python-dev
+  - python-virtualenv
   - python3
   - libpython3-dev
+  when: django_install_system_python|default(true)
 
 - name: Install application specific .deb dependencies
   apt: pkg={{item}} state=present update-cache=yes cache_valid_time=86400
