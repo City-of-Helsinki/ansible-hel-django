@@ -16,7 +16,8 @@
   pip:
     name: "{{item}}"
     virtualenv: /home/{{django_user}}/venv
-    virtualenv_command: python -m venv
+    virtualenv_command: virtualenv
+    virtualenv_python: python3
     virtualenv_site_packages: false
     state: latest
   with_items:
