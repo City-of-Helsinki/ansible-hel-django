@@ -1,3 +1,4 @@
+---
 - name: Set up service specific cron jobs
   cron: name={{ item.name }} job={{ item.command }} user={{ django_user }} minute={{ item.minute }}
   with_items: "{{ django_cronjobs | default([])}}"

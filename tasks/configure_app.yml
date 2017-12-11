@@ -1,3 +1,4 @@
+---
 - name: Read in Node path if available
   command: cat /home/{{django_user}}/nvm/path_to_current
   register: node_path

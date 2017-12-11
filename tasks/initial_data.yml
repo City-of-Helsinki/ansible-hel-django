@@ -1,3 +1,4 @@
+---
 - name: Copy & extract any service specific data archives
   become_user: "{{ django_user}}"
   unarchive: src={{ item.archive }}

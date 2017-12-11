@@ -1,3 +1,4 @@
+---
 - name: Clone the configured version of the project source
   become_user: "{{django_user}}"
   git: repo={{django_git_url}}
