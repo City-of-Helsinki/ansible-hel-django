@@ -1,0 +1,17 @@
+galaxy_info:
+  author: vikoivun
+  description: Deploy/build Helsinki-style Django apps
+  company: City of Helsinki
+
+  license: MIT
+
+  min_ansible_version: 2.4
+
+  platforms:
+  - name: Ubuntu
+    versions:
+    - 16.04
+
+  galaxy_tags: []
+
+dependencies: []
