@@ -41,7 +41,7 @@
     mode: 0644
   with_items: "{{ django_deployment_files|default([]) }}"
 
-- name: Run pre-migration commands
+- name: Run pre-migration management commands
   become_user: "{{django_user}}"
   environment:
     # LC_ALL is the big hammer to get rid of character set problems
@@ -88,7 +88,16 @@
   file: path=/home/{{django_user}}/media state=directory
   ignore_errors: yes
 
-- name: Run post-installation commands
+- name: Run post-migration shell commands
+  become_user: "{{django_user}}"
+  environment:
+    PATH: "{{ node_path.stdout }}:{{ ansible_env.PATH }}"
+  # chdir and command in this order to avoid quoting the whole thing
+  command: chdir=/home/{{django_user}}/{{django_name}} {{ item }}
+  with_items: "{{ django_shell_commands | default([]) }}"
+  tags: code_update
+
+- name: Run post-migration management commands
   become_user: "{{django_user}}"
   environment:
     # LC_ALL is the big hammer to get rid of character set problems
@@ -98,15 +107,6 @@
   django_manage: command={{ item }} app_path=/home/{{django_user}}/{{django_name}}
                   virtualenv=/home/{{django_user}}/venv
   with_items: "{{django_setup_commands|default([])}}"
-
-- name: Run commands to build the project
-  become_user: "{{django_user}}"
-  environment:
-    PATH: "{{ node_path.stdout }}:{{ ansible_env.PATH }}"
-  # chdir and command in this order to avoid quoting the whole thing
-  command: chdir=/home/{{django_user}}/{{django_name}} {{ item }}
-  with_items: "{{ django_shell_commands | default([]) }}"
-  tags: code_update
 
 - name: Collect static files
   become_user: "{{django_user}}"
