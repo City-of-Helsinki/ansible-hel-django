@@ -16,7 +16,7 @@
   template: src=django_local_settings_docker.py.j2
             dest=/home/{{django_user}}/{{django_name}}/local_settings.py
             mode=0644
-  when: django_create_contained_local_settings|default(True)
+  when: django_create_contained_local_settings|default(False)
 
 - name: Create django configuration fragment directory
   file:
