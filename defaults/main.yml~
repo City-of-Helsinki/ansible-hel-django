@@ -20,8 +20,6 @@ django_run_migrations: True
 django_data_import_commands: []
 # Are locales present? Can be set to false in case of failed detection
 django_locales_present: False
-# Shell commands to run after DB is set up
-django_shell_commands: []
 django_cronjobs: []
 django_cronenvs: []
 # Whether to create loca_settings.py configuration file, alternative

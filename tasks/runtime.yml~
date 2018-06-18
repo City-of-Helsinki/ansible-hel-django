@@ -1,12 +1,12 @@
 ---
 - name: Set up service specific cron jobs
   cron: name={{ item.name }} job={{ item.command }} user={{ django_user }} minute={{ item.minute }}
-  with_items: "{{ django_cronjobs }}"
+  with_items: "{{ django_cronjobs | default([])}}"
   tags: cronjobs
 
 - name: Set up service specific cron environment variables
   cron: name={{ item.name }} user={{ django_user }} env=yes value={{ item.value }}
-  with_items: "{{ django_cronenvs }}"
+  with_items: "{{ django_cronenvs | default([])}}"
   tags: cronjobs
 
 # State directory (misnomer) contains both state and actions for managing

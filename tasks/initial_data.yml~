@@ -12,5 +12,5 @@
     LC_ALL: C.UTF-8
   django_manage: command={{ item }} app_path=/home/{{django_user}}/{{django_name}}
                   virtualenv=/home/{{django_user}}/venv
-  with_items: "{{ django_data_import_commands }}"
+  with_items: "{{django_data_import_commands|default([])}}"
   ignore_errors: "{{ django_data_import_ignore_errors }}"

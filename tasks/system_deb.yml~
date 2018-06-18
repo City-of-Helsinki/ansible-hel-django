@@ -54,4 +54,4 @@
   with_items:
   - libxml2-dev
   - libxslt1-dev
-  when: django_lxml
+  when: django_lxml is defined and django_lxml
