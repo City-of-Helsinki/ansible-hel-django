@@ -3,6 +3,8 @@
 django_url_prefix: ""
 django_setup_environment: {}
 django_setup_commands: []
+# No debug mode (and logging) by default
+django_debug: no
 # Install (Ubuntu) dependencies for compiling pillow
 django_pillow: no
 # Install (Ubuntu) dependencies for compiling lxml
