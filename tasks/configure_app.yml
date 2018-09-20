@@ -71,13 +71,15 @@
   register: locale
   tags: code_update
 
+- debug: var=locale
+
 - name: Compile translations, if present
   django_manage: command=compilemessages app_path=/home/{{django_user}}/{{django_name}}
                  virtualenv=/home/{{django_user}}/venv
   become_user: "{{django_user}}"
   environment: "{{ django_setup_environment }}"
   # django_locales_present is an override when the test above produces false results
-  when: locale.matched > 0 and django_locales_present
+  when: locale.matched > 0 or django_locales_present
   tags: code_update
 
 - name: Create static file directory
@@ -111,10 +113,3 @@
   django_manage: command=collectstatic app_path=/home/{{django_user}}/{{django_name}}
                  virtualenv=/home/{{django_user}}/venv
   tags: code_update
-
-# Maybe remove this from the template and use post-installation command instead?
-- name: Regenerate Haystack index
-  become_user: "{{django_user}}"
-  django_manage: command="rebuild_index --noinput" app_path=/home/{{django_user}}/{{django_name}}
-                  virtualenv=/home/{{django_user}}/venv
-  when: django_full_reinit

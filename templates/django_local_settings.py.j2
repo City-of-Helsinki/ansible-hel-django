@@ -43,7 +43,7 @@ SESSION_COOKIE_PATH = '/{{ django_url_prefix|default("") }}'
 
 SITE_TYPE = '{{ django_site_state }}'
 
-{% if django_debug_logging|default(False) %}
+{% if django_debug_logging %}
 LOGGING = {
     'version': 1,
     'disable_existing_loggers': True,
@@ -94,7 +94,7 @@ LOGGING = {
         }
     }
 }
-{% else %}
+{% elif django_error_logging %}
 # Django default logging without debug does not output anything
 # to std*, let use log errors and worse. They should end up
 # in the runtime (ie. uwsgi) logs

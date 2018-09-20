@@ -9,28 +9,31 @@ django_debug: no
 django_pillow: no
 # Install (Ubuntu) dependencies for compiling lxml
 django_lxml: no
-# This is really elasticsearch stuff
-django_full_reinit: no
-# Ignore error for data importing, originally due to Nastola
-# going away
+# Ignore error for data importing, originally due to Nastola going away
 django_data_import_ignore_errors: no
 # Commands to run before migrations
 django_premigration_commands: []
 # Whether to run migrations
-django_run_migrations: True
+django_run_migrations: yes
 # Commands run after the application database is fully set up
 django_data_import_commands: []
 # Are locales present? Can be set to false in case of failed detection
-django_locales_present: False
+django_locales_present: true
+# Both of the following can be disabled. Then a custom logging
+# fragment is recommended. Unless the app itself configures logging
+# Enable verbose logging to stderr
+django_debug_logging: no
+# Enable error logging to stderr
+django_error_logging: yes
 # Shell commands to run after DB is set up
 django_shell_commands: []
 django_cronjobs: []
 django_cronenvs: []
 # Whether to create loca_settings.py configuration file, alternative
 # would be pure environment variable config
-django_create_local_settings: True
+django_create_local_settings: yes
 # Create container friendly local_settings (not really ready)
-django_create_contained_local_settings: False
+django_create_contained_local_settings: no
 # List of configurations fragment files
 django_config_fragments: []
 # Additional files to deploy
