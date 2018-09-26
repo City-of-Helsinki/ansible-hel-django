@@ -1,6 +1,8 @@
 ---
 # By default we don't want the installation to assume a prefix
 django_url_prefix: ""
+# X-Forwarded-Host is needed for connections from apigw
+django_use_x_forwarded_host: yes
 django_setup_environment: {}
 django_setup_commands: []
 # No debug mode (and logging) by default
@@ -17,8 +19,8 @@ django_premigration_commands: []
 django_run_migrations: yes
 # Commands run after the application database is fully set up
 django_data_import_commands: []
-# Are locales present? Can be set to false in case of failed detection
-django_locales_present: true
+# Are locales present? Can be set to true in case of failed detection
+django_locales_present: no
 # Both of the following can be disabled. Then a custom logging
 # fragment is recommended. Unless the app itself configures logging
 # Enable verbose logging to stderr
