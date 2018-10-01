@@ -7,7 +7,6 @@
        force={{django_git_force_pull|default(false)}}
   tags: [ 'code_update', 'git_operations' ]
   register: git_deploy
-  until: git_deploy|succeeded
   when: not django_skip_git is defined
 
 - name: Synchoronize given directory as source
