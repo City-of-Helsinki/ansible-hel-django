@@ -39,12 +39,12 @@
   tags: [ django_config, code_update ]
   with_items: "{{ django_config_fragments }}"
 
-# Source is hardcoded to django-generic sub, maybe it'll be all that is
+# "type" is just a subdirectory of files
 - name: Copy in deployment specific files
   copy:
-    src: files/django-generic/{{ item.source }}
-    dest: /home/{{django_user}}/{{django_name}}/{{ item.target }}
-    mode: 0644
+    src: files/{{ item.type|default("django-generic") }}/{{ item.source }}
+    dest: /home/{{django_user}}/{{ item.target }}
+    mode: "{{ item.mode|default(0644) }}"
   with_items: "{{ django_deployment_files }}"
 
 - name: Run pre-migration management commands
