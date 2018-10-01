@@ -71,8 +71,6 @@
   register: locale
   tags: code_update
 
-- debug: var=locale
-
 - name: Compile translations, if present
   django_manage: command=compilemessages app_path=/home/{{django_user}}/{{django_name}}
                  virtualenv=/home/{{django_user}}/venv
