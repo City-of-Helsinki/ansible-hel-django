@@ -3,12 +3,14 @@
   command: cat /home/{{django_user}}/nvm/path_to_current
   register: node_path
   ignore_errors: yes
+  tags: code_update
 
 - name: Combine setup environment with NODE path
   set_fact:
     django_setup_environment:
       "{{ {'PATH': node_path.stdout+':'+ansible_env.PATH } | combine(django_setup_environment) }}"
   when: node_path.stdout is defined
+  tags: code_update
 
 - name: Template in Django configuration
   become_user: "{{django_user}}"
