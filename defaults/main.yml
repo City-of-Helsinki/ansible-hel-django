@@ -31,6 +31,8 @@ django_error_logging: yes
 django_shell_commands: []
 django_cronjobs: []
 django_cronenvs: []
+# Management commands to run after collecting static files
+django_postcollect_commands: []
 # Whether to create loca_settings.py configuration file, alternative
 # would be pure environment variable config
 django_create_local_settings: yes

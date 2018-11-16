@@ -1,6 +1,6 @@
 ---
 - name: Set up service specific cron jobs
-  cron: name={{ item.name }} job={{ item.command }} user={{ django_user }} minute={{ item.minute }} disabled={{ item.disabled|default(no) }}
+  cron: name={{ item.name }} job={{ item.command }} user={{ django_user }} minute={{ item.minute }} disabled={{ item.disabled|default(false) }}
   with_items: "{{ django_cronjobs }}"
   tags: cronjobs
 

@@ -105,7 +105,7 @@
   environment: "{{ django_setup_environment }}"
   django_manage: command={{ item }} app_path=/home/{{django_user}}/{{django_name}}
                   virtualenv=/home/{{django_user}}/venv
-  with_items: "{{django_setup_commands}}"
+  with_items: "{{ django_setup_commands }}"
 
 - name: Collect static files
   become_user: "{{django_user}}"
@@ -113,3 +113,10 @@
   django_manage: command=collectstatic app_path=/home/{{django_user}}/{{django_name}}
                  virtualenv=/home/{{django_user}}/venv
   tags: code_update
+
+- name: Run post static collection management commands
+  become_user: "{{django_user}}"
+  environment: "{{ django_setup_environment }}"
+  django_manage: command={{ item }} app_path=/home/{{django_user}}/{{django_name}}
+                  virtualenv=/home/{{django_user}}/venv
+  with_items: "{{ django_postcollect_commands }}"
