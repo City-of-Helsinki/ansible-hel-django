@@ -15,6 +15,10 @@
   file: path=/home/{{django_user}}/service_state state=directory
   tags: code_update
 
+# Tasks directory is for stuff like scripts to be run from cron
+- name: Ensure service tasks directory exists
+  file: path=/home/{{django_user}}/service_tasks state=directory
+
 - name: Write deployed version in service state directory
   copy: content="{{ git_deploy.after }}\n" dest=/home/{{ django_user }}/service_state/deployed_version
   tags: code_update
