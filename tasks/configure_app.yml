@@ -12,6 +12,10 @@
   when: node_path.stdout is defined
   tags: code_update
 
+# Tasks directory is for stuff like scripts to be run from cron
+- name: Ensure service tasks directory exists
+  file: path=/home/{{django_user}}/service_tasks state=directory
+
 - name: Template in Django configuration
   become_user: "{{django_user}}"
   template: src=django_local_settings.py.j2
