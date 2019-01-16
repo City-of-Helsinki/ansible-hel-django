@@ -7,6 +7,8 @@ django_setup_environment: {}
 django_setup_commands: []
 # No debug mode (and logging) by default
 django_debug: no
+# System package (.deb) dependencies to install
+django_deb_deps: []
 # Install (Ubuntu) dependencies for compiling pillow
 django_pillow: no
 # Install (Ubuntu) dependencies for compiling lxml
