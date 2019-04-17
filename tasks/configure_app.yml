@@ -5,9 +5,13 @@
   ignore_errors: yes
   tags: code_update
 
+- name: Set virtualenv location as fact
+  set_fact:
+    _django_venv: /home/{{django_user}}/venv
+
 - name: Combine setup environment with NODE path
   set_fact:
-    django_setup_environment:
+    _django_setup_env:
       "{{ {'PATH': node_path.stdout+':'+ansible_env.PATH } | combine(django_setup_environment) }}"
   when: node_path.stdout is defined
   tags: code_update
@@ -55,16 +59,16 @@
 
 - name: Run pre-migration management commands
   become_user: "{{django_user}}"
-  environment: "{{ django_setup_environment }}"
+  environment: "{{ _django_setup_env }}"
   django_manage: command={{ item }} app_path=/home/{{django_user}}/{{django_name}}
-                  virtualenv=/home/{{django_user}}/venv
+                  virtualenv={{ _django_venv }}
   with_items: "{{django_premigration_commands}}"
   tags: code_update
 
 - name: Apply database migrations
-  environment: "{{ django_setup_environment }}"
+  environment: "{{ _django_setup_env }}"
   django_manage: command=migrate app_path=/home/{{django_user}}/{{django_name}}
-                 virtualenv=/home/{{django_user}}/venv
+                 virtualenv={{ _django_venv }}
   become_user: "{{django_user}}"
   when: django_run_migrations
   tags: [db,code_update]
@@ -79,9 +83,9 @@
 
 - name: Compile translations, if present
   django_manage: command=compilemessages app_path=/home/{{django_user}}/{{django_name}}
-                 virtualenv=/home/{{django_user}}/venv
+                 virtualenv={{ _django_venv }}
   become_user: "{{django_user}}"
-  environment: "{{ django_setup_environment }}"
+  environment: "{{ _django_setup_env }}"
   # django_locales_present is an override when the test above produces false results
   when: locale.matched > 0 or django_locales_present
   tags: code_update
@@ -98,7 +102,7 @@
 
 - name: Run post-migration shell commands
   become_user: "{{django_user}}"
-  environment: "{{ django_setup_environment }}"
+  environment: "{{ _django_setup_env }}"
   # chdir and command in this order to avoid quoting the whole thing
   command: chdir=/home/{{django_user}}/{{django_name}} {{ item }}
   with_items: "{{ django_shell_commands }}"
@@ -106,21 +110,21 @@
 
 - name: Run post-migration management commands
   become_user: "{{django_user}}"
-  environment: "{{ django_setup_environment }}"
+  environment: "{{ _django_setup_env }}"
   django_manage: command={{ item }} app_path=/home/{{django_user}}/{{django_name}}
-                  virtualenv=/home/{{django_user}}/venv
+                  virtualenv={{ _django_venv }}
   with_items: "{{ django_setup_commands }}"
 
 - name: Collect static files
   become_user: "{{django_user}}"
-  environment: "{{ django_setup_environment }}"
+  environment: "{{ _django_setup_env }}"
   django_manage: command=collectstatic app_path=/home/{{django_user}}/{{django_name}}
-                 virtualenv=/home/{{django_user}}/venv
+                 virtualenv={{ _django_venv }}
   tags: code_update
 
 - name: Run post static collection management commands
   become_user: "{{django_user}}"
-  environment: "{{ django_setup_environment }}"
+  environment: "{{ _django_setup_env }}"
   django_manage: command={{ item }} app_path=/home/{{django_user}}/{{django_name}}
-                  virtualenv=/home/{{django_user}}/venv
+                  virtualenv={{ _django_venv }}
   with_items: "{{ django_postcollect_commands }}"
