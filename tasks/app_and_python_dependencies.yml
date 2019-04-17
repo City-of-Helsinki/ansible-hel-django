@@ -26,15 +26,16 @@
   environment:
     LC_CTYPE: C.UTF-8
   pip:
-    name: "{{item}}"
+    name: "{{ packages }}"
     virtualenv: /home/{{django_user}}/venv
     virtualenv_command: virtualenv
     virtualenv_python: python3
     virtualenv_site_packages: false
     state: latest
-  with_items:
-    - setuptools
-    - pip
+  vars:
+    packages:
+      - setuptools
+      - pip
 
 - name: Install requirements.txt into virtualenv
   become_user: "{{django_user}}"
