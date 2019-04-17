@@ -12,7 +12,11 @@
 # State directory (misnomer) contains both state and actions for managing
 # the service (like backup config, scripts and reload touchpoint)
 - name: Ensure service state directory exists
-  file: path=/home/{{django_user}}/service_state state=directory
+  file: path=/home/{{django_user}}/service_state state=directory owner={{ django_user }}
+  tags: code_update
+
+- name: Ensure service logs directory exists
+  file: path=/home/{{ django_user }}/service_logs state=directory owner={{ django_user }}
   tags: code_update
 
 - name: Write deployed version in service state directory
