@@ -16,6 +16,11 @@
     dest: /home/{{ django_user }}/{{ django_name }}/
   when: django_sync_source is defined
 
+- name: Ensure virtualenv executable is available
+  apt:
+    name: virtualenv
+    state: present
+
 - name: Create virtualenv & upgrade pip & setuptools
   become_user: "{{django_user}}"
   environment:
