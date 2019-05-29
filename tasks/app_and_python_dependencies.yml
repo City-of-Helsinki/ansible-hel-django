@@ -69,11 +69,10 @@
   # this by setting locale (this should be verified as this over year ago)
   environment:
     LC_ALL: C.UTF-8
-  pip: name={{item}}
+  pip: name="{{django_service_pypis|default([])}}"
        virtualenv=/home/{{django_user}}/venv
        virtualenv_site_packages=no
        state=latest
-  with_items: "{{django_service_pypis|default([])}}"
   tags: [ venv, code_update ]
 
 # This is a convenience for in situ debugging
