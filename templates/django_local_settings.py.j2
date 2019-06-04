@@ -16,8 +16,14 @@ ALLOWED_HOSTS = {{ django_virtualhosts }}
 DATABASES = {
     'default': {
         'ENGINE': '{% if django_db_postgis|default(False) %}django.contrib.gis.db.backends.postgis{% else %}django.db.backends.postgresql_psycopg2{% endif %}',
+{% if django_db_host is defined %}
+	'HOST': '{{ django_db_host }}',
+{% endif %}
         'NAME': '{{django_db_name}}',
-        'USER': '{{django_user}}',
+        'USER': '{{django_db_user}}',
+{% if django_db_password is defined %}
+	'PASSWORD': '{{ django_db_password }}',
+{% endif %}
         'CONN_MAX_AGE': 600,
         'ATOMIC_REQUESTS': {{ django_atomic_requests|default(False) }},
     }
