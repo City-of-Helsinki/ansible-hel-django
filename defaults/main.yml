@@ -14,7 +14,7 @@ django_pillow: no
 # Install (Ubuntu) dependencies for compiling lxml
 django_lxml: no
 # Separate database username
-django_db_user: {{ django_user }}
+django_db_user: "{{ django_user }}"
 # Ignore error for data importing, originally due to Nastola going away
 django_data_import_ignore_errors: no
 # Commands to run before migrations
