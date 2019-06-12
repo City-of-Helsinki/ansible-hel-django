@@ -44,6 +44,8 @@ USE_X_FORWARDED_HOST = {{ django_use_x_forwarded_host }}
 
 CSRF_COOKIE_NAME = '{{ django_name }}-csrftoken'
 CSRF_COOKIE_PATH = '/{{ django_url_prefix|default("") }}'
+{# FIXME, django role should not really look inside nginx configuration #}
+CSRF_COOKIE_SECURE = {{ 'True' if nginx_certchain is defined else 'False' }}
 SESSION_COOKIE_NAME = '{{ django_name }}-sessionid'
 {# FIXME, django role should not really look inside nginx configuration #}
 SESSION_COOKIE_SECURE = {{ 'True' if nginx_certchain is defined else 'False' }}
