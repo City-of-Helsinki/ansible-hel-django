@@ -5,6 +5,8 @@ django_url_prefix: ""
 django_use_x_forwarded_host: yes
 django_setup_environment: {}
 django_setup_commands: []
+# Acknowledge Django checks W001, if handled by your front servers
+django_acknowledge_http_security_warning: true
 # No debug mode (and logging) by default
 django_debug: no
 # System package (.deb) dependencies to install

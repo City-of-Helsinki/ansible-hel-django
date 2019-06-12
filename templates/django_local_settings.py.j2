@@ -11,6 +11,14 @@ if os.path.isdir(local_settings_d):
         exec(open(os.path.join(local_settings_d, file), "rb").read())
 {% endif %}
 
+{% if django_acknowledge_http_security_warning %}
+# W001 is handled at front facing web server. Possibly by this config:
+# See: https://github.com/City-of-Helsinki/ansible-hel-nginx
+SILENCED_SYSTEM_CHECKS = [
+   "security.W001",
+]
+{% endif %}
+
 ALLOWED_HOSTS = {{ django_virtualhosts }}
 
 DATABASES = {
