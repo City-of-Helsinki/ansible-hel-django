@@ -1,2 +1,3 @@
 ---
-# handlers file for hel-django
+- name: django_checks_found_something
+  debug: msg="{{django_checks_status.stderr}}"

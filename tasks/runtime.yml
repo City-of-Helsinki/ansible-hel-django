@@ -12,17 +12,25 @@
 # State directory (misnomer) contains both state and actions for managing
 # the service (like backup config, scripts and reload touchpoint)
 - name: Ensure service state directory exists
-  file: path=/home/{{django_user}}/service_state state=directory owner={{ django_user }}
+  file: path=/home/{{django_user}}/service_state state=directory owner={{ django_user }} group={{ django_user}}
   tags: code_update
 
 - name: Ensure service logs directory exists
-  file: path=/home/{{ django_user }}/service_logs state=directory owner={{ django_user }}
+  file: path=/home/{{ django_user }}/service_logs state=directory owner={{ django_user }} group={{ django_user }}
   tags: code_update
 
 - name: Write deployed version in service state directory
   copy: content="{{ git_deploy.after }}\n" dest=/home/{{ django_user }}/service_state/deployed_version
   tags: code_update
   when: not django_skip_git is defined
+
+# Currently this always registers, need a way to not output if there is only a single line
+- name: Run checks in deployment mode
+  become_user: "{{django_user}}"
+  environment: "{{ _django_setup_env }}"
+  command: chdir=/home/{{django_user}}/{{django_name}} {{ _django_venv }}/bin/python manage.py check --deploy
+  register: django_checks_status
+  notify: django_checks_found_something
 
 # Touching the file will not magically do something. Application server (like uwsgi) must be configured
 # to act on this.
