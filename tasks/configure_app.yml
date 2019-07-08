@@ -8,6 +8,7 @@
 - name: Set virtualenv location as fact
   set_fact:
     _django_venv: /home/{{django_user}}/venv
+  tags: code_update
 
 - name: Combine setup environment with NODE path
   set_fact:
