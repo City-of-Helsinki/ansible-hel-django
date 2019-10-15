@@ -41,7 +41,6 @@
     state: directory
     mode: 0755
     owner: "{{ django_user }}"
-  when: django_create_local_settings
 
 - name: Copy in configuration fragments
   become_user: "{{django_user}}"
